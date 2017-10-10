@@ -1,0 +1,26 @@
+使用前注意路径设置！
+
+readfile.py读入dcm信息，整合
+
+    适用于处理较少数量的dcm文件，
+    处理数量较多的dcm文件时，建议先选择好范围，保存矩阵图片信息到npy文件，之后批量读入(类似于superpixel.py)
+	Thresholdsave   选定阈值保存
+	SaveNpy 选定矩阵范围保存npy
+	ShowLabelandContour  显示label和画在mr上的gtv
+	SliceCluster  otsu二值化后，采用异或测量相邻两层距离
+
+MRstrut.py
+
+class myPatient
+	类成员包括路径信息和MRsequence dict
+	MRsequence dict中有四个成员，分别对应着四个不同的MR图
+	函数 Mormalize 按照物理坐标对准四张图位置
+
+class MRsequence
+	最后的图片信息在cutImg中，医生勾画的结果保存在cutLabel中
+	
+superpixel.py
+
+	将图像进行超像素分割。
+
+	
