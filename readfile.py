@@ -1,8 +1,8 @@
-import dicom
-import numpy as np
+# --- update 2017/10/11 --- #
+
 import glob
 import copy
-import cv2
+
 import os
 from MRstruct import *
 import gc
@@ -21,7 +21,7 @@ def ThresholdSave(th1, th2):
     for name in filelist1[:10]:
         i = i +1
         try:
-            os.mkdir("th"+str(i))
+            os.mkdir("..\\th"+str(i))
         except:
             pass
         mrPatient = myPatient(name+"\\")
@@ -35,15 +35,15 @@ def ThresholdSave(th1, th2):
             maxvalue = np.max(oneMRs.cutImg)
             #minvalue = np.min(oneMRs.cutImg)
             #Img[np.where(Img==0)] = 1000
-            Img[np.where(Img<=th1)] = 0
+            Img[np.where(Img<=maxvalue/7)] = 0
             #Img[np.where(Img==1000)] = 0
-            Img[np.where(Img>th1)] = 1
+            Img[np.where(Img>maxvalue/7)] = 1
             for z in xrange(10,slice-10):
                 if 1 in Img[z]:
                     kernal = np.ones((3,3))
                     #Img[z] = cv2.dilate(Img[z], kernal, iterations=2)
                     #Img[z] = cv2.erode( Img[z], kernal, iterations=2)
-                    tempfilename = "th"+str(i)+"\\t1-"+str(z)+".tif"
+                    tempfilename = "..\\th"+str(i)+"\\t1-"+str(z)+".tif"
                     # cv2.imshow(str(z),Img[z])
                     # save change operation
                     temp = Img[z]
@@ -54,27 +54,62 @@ def ThresholdSave(th1, th2):
     cv2.destroyAllWindows()
 
 def SaveNpy():
+    try:
+        os.mkdir("..\\NPY")
+    except:
+        pass
+    def Zposition2Zslice(tuple):
+        n1 = int(round((tuple[0] + 99) / 3.))
+        n2 = int(round((tuple[1] + 99) / 3.))
+        if n1<0:
+            n1=0
+        if n2>100:
+            n2=100
+        return n1,n2
+
+    #----------------------------------------------------#
+    # read xlsx file
+    import xlrd, string
+    data = xlrd.open_workbook("100case.xlsx")
+    table = data.sheets()[0]
+    casedict = {}
+    for i in xrange(1,table.nrows):
+        rowValues = table.row_values(i)
+        if type(rowValues[0])== float:
+            rowValues[0] = int(rowValues[0])
+        if type(rowValues[1]) == unicode:
+            continue
+        casedict[str(rowValues[0])] = (string.atof(rowValues[1]),string.atof(rowValues[2]))
+    print "training number:",len(casedict)
+    # use dict structure to store xlsx data
+
     i = 0
-    for name in filelist1[1:3]:
+    for name in filelist2:
+        headname = name.split("\\")[-1]
+        if not casedict.has_key(headname):  # exclude none-mark data
+            continue
+        nose_pos = casedict[str(headname)]
+        z1,z2 = Zposition2Zslice(nose_pos)
         mrPatient = myPatient(name+"\\")
         mrPatient.Dataupdate()
         oneData = []
-        for j in xrange(1):
+        for j in xrange(4):
             oneMRs = mrPatient.MRsequence[j]
             print "-------------------------"
             # for z in xrange(38,46):
-            cv2.imshow(name+str(40),\
-                       pre_process(oneMRs.cutImg[40,centerSize[0]:centerSize[1],centerSize[2]:centerSize[3]]))
-            oneData.append(oneMRs.cutImg[38:46,centerSize[0]:centerSize[1],centerSize[2]:centerSize[3]])
-        oneData.append(oneMRs.cutLabel[38:46,centerSize[0]:centerSize[1],centerSize[2]:centerSize[3]])
+            #cv2.imshow(name+str(40),\
+            #           pre_process(oneMRs.cutImg[40,centerSize[0]:centerSize[1],centerSize[2]:centerSize[3]]))
+            oneData.append(oneMRs.cutImg[z1:z2+1,centerSize[0]:centerSize[1],centerSize[2]:centerSize[3]])
+        oneData.append(oneMRs.cutLabel[z1:z2+1,centerSize[0]:centerSize[1],centerSize[2]:centerSize[3]])
         oneData = np.array(oneData)
-        # print oneData.shape
+        print oneData.shape
         oneData.astype(int)
-        # np.save(str(i)+".npy",oneData)
+        np.save("..\\NPY\\"+str(i)+".npy",oneData)
         del oneData
         del mrPatient
         gc.collect()
         i = i + 1
+
         print i
     cv2.waitKey(0)
     cv2.destroyAllWindows()
@@ -122,7 +157,6 @@ def SliceCluster():
             Img = oneMRs.cutImg
             print "------------------"
             slice = Img.shape
-            print "The value of slice is: ", 
             print slice
             slice = slice[0]
             maxvalue = np.max(oneMRs.cutImg)
@@ -151,8 +185,9 @@ def SliceCluster():
 
 
 if __name__ == '__main__':
-    print "Here we goooooo!!!!!!"
+    print "hello"
     # ShowLabelandContour()
     #ThresholdSave(50,100)
-    SliceCluster()
+    SaveNpy()
+    #SliceCluster()
 
