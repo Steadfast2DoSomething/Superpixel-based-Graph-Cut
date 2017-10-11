@@ -1,43 +1,49 @@
+# --- update 2017/10/11 --- #
+
 import numpy as np
 import copy
 import cv2
+
 
 class Spixel:
     def __init__(self, imgData, superpixelLabel):
         self.img = imgData[:4,:,:]
         self.superpixelLabel = superpixelLabel
         self.GTVlabel = imgData[4,:,:]
-        print self.img.shape,
-        print self.GTVlabel.shape
+        # print self.img.shape,
+        # print self.GTVlabel.shape
         self.listnum = np.max(self.superpixelLabel) + 1
         self.sp_list = []
 
         # initial part
-        self.GTVlabel[np.where(self.GTVlabel>0.9)]=1
+        self.GTVlabel[np.where(self.GTVlabel>0.9)] = 1
         self.GTVlabel[np.where(self.GTVlabel<=0.9)] = 0
         self.getOneSpixelList()
-        #print self.sp_list
 
     def getOneSpixelList(self):
         for i in xrange(self.listnum):
             oneSpixel = OneSpixel()
             oneSpixel.Update_basicinfo(i, self.img, self.superpixelLabel, self.GTVlabel)
             self.sp_list.append(oneSpixel)
+        print 'The number of sp of sp_list is:', len(self.sp_list)
 
 class OneSpixel:
     def __init__(self):
         self.labelindex = -1
         self.mean = [-1,-1,-1,-1, 0]  #the fifth is average value
         self.variance = [-1,-1,-1,-1, 0]  #the fifth is average value
+
+
         self.centerpoint = [-1,-1]
-        self.label = -1
+        self.label = -1  # three option -1,0,1
         self.pixelnumber = -1
         self.limitsRange = [-1,-1,-1,-1] #Xmax, Xmin, Ymax, Ymin
+
 
     def Update_basicinfo(self, index, imgdata, labelmatrix, GTVlabel):
         self.labelindex = index
         targetindex = np.where(labelmatrix == index)
-        print index
+        #print index
         #--------------------------------------------------------------#
         # mean value and var value
         for i in xrange(4):
@@ -68,7 +74,7 @@ class OneSpixel:
         # center_point
         self.centerpoint[0] = int(np.mean(targetindex[0]))
         self.centerpoint[1] = int(np.mean(targetindex[1]))
-        print self.centerpoint
+        #print self.centerpoint
 
         #------------------------------------------------------------#
         # contour_range
@@ -79,4 +85,6 @@ class OneSpixel:
 
     def Feature_HoG(self):
         pass
-        
+
+    
+    
