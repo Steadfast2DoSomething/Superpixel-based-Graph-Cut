@@ -1,3 +1,5 @@
+# --- update 2017/10/11 --- #
+
 import dicom
 import numpy as np
 import glob
@@ -138,9 +140,7 @@ class myPatient:
         if len(self.MRfilelist) != 4:
             print "wrong filepath!!"
             exit(1)
-        print 'Show MRfilelist as follows: '
         print self.MRfilelist
-        print "--------------------------"
 
     def SetMRsequenceData(self):
         for i in xrange(4):
@@ -170,8 +170,8 @@ class myPatient:
             rangey2 = int((newrd[1] - pos[1]) / pixspace)
             scale1 = rangex2-rangex1
             scale2 = rangey2-rangey1
-            print 'The value of rangex1 is:', rangex1, ', the value of rangey1 is:', rangey1
-            print 'The value of rangex2 is:', rangex2, ', the value of rangey2 is:', rangey2
+            print rangex1, rangey1
+            print rangex2, rangey2
 
             cutImg = obj.ImageData[:, rangex1:rangex2+1, rangey1:rangey2+1]
             newImg = []
@@ -212,9 +212,12 @@ class MRsequence():
         self.dcmnumber = len(self.dcmlist)
         self.Zposlist = []  # index to zpos
         # self.Zindexdict = {} # zpos to index
-        self.pixelspace = 0;
+        self.pixelspace = 0
         self.size = [0, 0]
         self.ImageData = None
+
+
+
 
         array = []
         for name in self.dcmlist:
@@ -239,11 +242,11 @@ class MRsequence():
         self.pixelspace = float(info.PixelSpacing[0])
         # self.up_left_pos = float(self.up_left_pos)
         # cv2.imshow(self.strcstr,pre_process(self.ImageData[40]))
-        print 'The value of up_left_pos is:', self.up_left_pos
-        print 'The value of pixelspace is:', self.pixelspace
-        print 'The value of size[0] is:', self.size[0]
-        print 'The value of the p * size[0] + u[0] is:', self.pixelspace*int(self.size[0])+self.up_left_pos[0]
-        print 'The value of the p * size[1] + u[1] is:', self.pixelspace*int(self.size[1])+self.up_left_pos[1]
+        print self.up_left_pos
+        print self.pixelspace
+        print self.size[0]
+        print self.pixelspace*int(self.size[0])+self.up_left_pos[0],
+        print self.pixelspace*int(self.size[1])+self.up_left_pos[1]
         print "--------------------------"
 
         #print self.up_left_pos
@@ -265,7 +268,7 @@ class MRsequence():
             tempZlist.append(contourData[i][0,2])
         self.GTVzpos_range = [min(tempZlist), max(tempZlist)]
         self.GTVData = np.array(contourData)
-        print 'The value of strct is: ',max(self.GTVData[self.GTVslicenum-5][:,0]), max(self.GTVData[self.GTVslicenum-5][:,1]) # check contour coordinate in different MRI
+        print 'strct',max(self.GTVData[self.GTVslicenum-5][:,0]), max(self.GTVData[self.GTVslicenum-5][:,1]) # check contour coordinate in different MRI
 
     def GetLabelData(self):
         self.GTVpixData = copy.deepcopy(self.GTVData)
