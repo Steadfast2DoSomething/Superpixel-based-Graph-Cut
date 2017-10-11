@@ -1,3 +1,5 @@
+# --- update 2017/10/11 --- #
+
 from MRstruct import *
 from Spixelstruct import *
 import cv2
@@ -8,7 +10,7 @@ from skimage import data, segmentation, color
 from skimage.future import graph
 from sklearn import tree
 
-def Superpixel_show(labels1, img,testImg):
+def Superpixel_show(labels1, img, testImg):
     for x in xrange(1, labels1.shape[0]-1):
         for y in xrange(1, labels1.shape[1]-1):
             if labels1[x][y] != labels1[x][y+1] or labels1[x][y]!=labels1[x+1][y]:
@@ -38,21 +40,20 @@ def Superpixel_show(labels1, img,testImg):
 if __name__ == '__main__':
     for i in xrange(1):
         print i
-        temp = np.load(str(i)+'.npy')
+        temp = np.load("..\\NPY\\"+str(i)+'.npy')
         print temp.shape
 
-        testImg = temp[:, 3, 30:170, 30:170]  #further shrink  #second number for selecting one slice
+        testImg = temp[:, 5, 30:170, 30:170]  #further shrink  #second number for selecting one slice
         print testImg.shape
-        for j in xrange(4):
-            pass
+        # for j in xrange(4):
+        #     pass
             # testImg[j] = cv2.GaussianBlur(testImg[j], (5,5), 0)
 
     img = np.zeros((testImg.shape[1],testImg.shape[2],4))
     for j in xrange(4):
         img[:,:,j] = testImg[j]
 
-    labels1 = segmentation.slic(img, compactness=40, n_segments=500)
+    labels1 = segmentation.slic(img, compactness=60, n_segments=400)
     #Superpixel_show(labels1,img,testImg)
     oneSlice = Spixel(testImg,labels1)
-
 
